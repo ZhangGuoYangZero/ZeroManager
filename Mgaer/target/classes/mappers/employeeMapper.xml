@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manager.mag.dao.employeeMapper">
+    <resultMap id="BaseResultMap" type="com.manager.mag.vo.employee">
+        <id column="Employee_number" property="employeeNumber" jdbcType="VARCHAR"/>
+        <result column="Employee_name" property="employeeName" jdbcType="VARCHAR"/>
+        <result column="Employee_position" property="employeePosition" jdbcType="VARCHAR"/>
+        <result column="E_d" property="employeeDepartment" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select al.Employee_number, al.Employee_name, al.Employee_position, de.部门 E_d
+        from all_employee al,
+             department de
+        where al.Employee_department = de.id
+          and Employee_number = #{employeeNumber,jdbcType=VARCHAR}
+    </select>
+    <select id="selectByParams" parameterType="com.manager.mag.Query.EmployeeQuery"
+            resultMap="BaseResultMap">
+
+        select al.Employee_number,al.Employee_name,al.Employee_position,de.部门 E_d
+        from all_employee al,
+        department de
+        <where>
+            al.Employee_department = de.id
+            <if test="EmpNum != null and EmpNum != ''">
+                and Employee_number = #{EmpNum,jdbcType=VARCHAR}
+            </if>
+
+            <if test="Position != null and Position != ''">
+                and Employee_position = #{Position,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from all_employee
+        where Employee_number = #{employeeNumber,jdbcType=VARCHAR}
+    </delete>
+    <delete id="deleteBatch">
+        delete
+        from all_employee
+        where Employee_number in <foreach collection="array" item="num" open="(" close=")" separator="," >
+            #{num}
+    </foreach>
+    </delete>
+
+    <insert id="insert" parameterType="com.manager.mag.vo.employee">
+        insert into all_employee (Employee_number, Employee_name, Employee_position,
+                                  Employee_department)
+        values (#{employeeNumber,jdbcType=VARCHAR}, #{employeeName,jdbcType=VARCHAR},
+                #{employeePosition,jdbcType=VARCHAR},
+                #{employeeDepartment,jdbcType=INTEGER})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.manager.mag.vo.employee">
+        insert into all_employee
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="employeeNumber != null">
+                Employee_number,
+            </if>
+            <if test="employeeName != null">
+                Employee_name,
+            </if>
+            <if test="employeePosition != null">
+                Employee_position,
+            </if>
+            #由于用的其他表存储的部门，所以这里输入的是部门id
+            <if test="employeeDepartment != null">
+                Employee_department,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="employeeNumber != null">
+                #{employeeNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="employeeName != null">
+                #{employeeName,jdbcType=VARCHAR},
+            </if>
+            <if test="employeePosition != null">
+                #{employeePosition,jdbcType=VARCHAR},
+            </if>
+            <if test="employeeDepartment != null">
+                #{employeeDepartment,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.manager.mag.vo.employee">
+        update all_employee
+        <set>
+            <if test="employeeName != null">
+                Employee_name = #{employeeName,jdbcType=VARCHAR},
+            </if>
+            <if test="employeePosition != null">
+                Employee_position = #{employeePosition,jdbcType=VARCHAR},
+            </if>
+            <if test="employeeDepartment != null">
+                Employee_department = #{employeeDepartment,jdbcType=INTEGER},
+            </if>
+        </set>
+        where Employee_number = #{employeeNumber,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.manager.mag.vo.employee">
+        update all_employee
+        set Employee_name       = #{employeeName,jdbcType=VARCHAR},
+            Employee_position   = #{employeePosition,jdbcType=VARCHAR},
+            Employee_department = #{employeeDepartment,jdbcType=INTEGER}
+        where Employee_number = #{employeeNumber,jdbcType=VARCHAR}
+    </update>
+</mapper>

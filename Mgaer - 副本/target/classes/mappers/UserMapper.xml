@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manager.mag.dao.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.manager.mag.vo.User">
+        <result column="Use_name" property="useName" jdbcType="VARCHAR"/>
+        <result column="Password" property="password" jdbcType="VARCHAR"/>
+        <result column="Real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="id" property="ID" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.manager.mag.vo.User">
+        insert into use_use (Use_name, Password, Real_name)
+        values (#{useName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR})
+    </insert>
+
+
+
+
+    <!-- 查询用户 单  -->
+    <!--  谁知SQL 解析范围可以寻找到对应的表，比较 不同表同字段-->
+    <select id="queryUserByname" parameterType="String" resultType="com.manager.mag.vo.User">
+        select use_name, Password, Real_name, id
+        from use_use
+        where use_name = #{uname};
+    </select>
+
+    <select id="queryAllByID" resultType="com.manager.mag.vo.User">
+        select Use_name, Password, Real_name, id
+        from use_use
+        where id = #{ID};
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select Use_name,
+               Password,
+               Real_name,
+               id
+        from use_use
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryCodeAblityById" parameterType="com.manager.mag.Query.UserQuery" resultType="java.lang.String">
+        select profile.code, profile.ablity
+        from (select ro.id
+              from (select user.rolePosition from use_use user where id = #{id}) ropo,
+                   role ro,
+                   role_use
+              where ropo.rolePosition = role_use.usekey
+                and role_use.rolekey = ro.id) rid,
+             role_profile,
+             profile
+        where rid.id = role_profile.role_key
+          and role_profile.profilekey = profile.id;
+    </select>
+
+    <select id="queryProfileById" parameterType="integer" resultType="java.lang.String">
+        select code from (select id,rolePosition from use_use where use_use.id = #{id}) use_use left join role
+                                                                                                        on  use_use.rolePosition = role.id left join role_profile on
+            role.id = role_profile.role_key left join profile on
+            role_profile.profilekey = profile.id
+
+    </select>
+
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.manager.mag.vo.User" >
+        update use_use
+        <set >
+            <if test="useName != null" >
+                Use_name = #{useName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                Password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null" >
+                Real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{ID,jdbcType=INTEGER}
+    </update>
+
+
+</mapper>

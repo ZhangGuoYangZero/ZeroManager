@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manager.mag.dao.costMapper">
+    <resultMap id="BaseResultMap" type="com.manager.mag.vo.cost">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="Device_name" property="deviceName" jdbcType="VARCHAR"/>
+        <result column="Model" property="model" jdbcType="VARCHAR"/>
+        <result column="price" property="price" jdbcType="INTEGER"/>
+        <result column="total" property="total" jdbcType="INTEGER"/>
+        <result column="Number_of_device" property="numberOfDevice" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.manager.mag.vo.cost">
+        insert into cost_table (id, Device_name, Model,
+                                price, total, Number_of_device)
+        values (#{id,jdbcType=INTEGER}, #{deviceName,jdbcType=VARCHAR}, #{model,jdbcType=VARCHAR},
+                #{price,jdbcType=INTEGER}, #{total,jdbcType=INTEGER}, #{numberOfDevice,jdbcType=INTEGER})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.manager.mag.vo.cost">
+        insert into cost_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deviceName != null">
+                Device_name,
+            </if>
+            <if test="model != null">
+                Model,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="total != null">
+                total,
+            </if>
+            <if test="numberOfDevice != null">
+                Number_of_device,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="deviceName != null">
+                #{deviceName,jdbcType=VARCHAR},
+            </if>
+            <if test="model != null">
+                #{model,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=INTEGER},
+            </if>
+            <if test="total != null">
+                #{total,jdbcType=INTEGER},
+            </if>
+            <if test="numberOfDevice != null">
+                #{numberOfDevice,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <!--  插入前3列-->
+    <insert id="InsertCOL3">
+        INSERT INTO cost_table(id, Device_name, Model, Number_of_device)
+        SELECT id, Device_name, Model, Number_of_devices
+        FROM alliteam
+        WHERE statu = 0;
+    </insert>
+    <!--   跟新到prince列-->
+    <update id="updatacolprince">
+        UPDATE cost_table r
+            INNER JOIN (SELECT price, Model FROM pay) t ON r.Model = t.Model
+        SET r.price = t.price
+        where 1 = 1;
+    </update>
+
+    <!--   TOTAL-->
+    <update id="updatacolTotle">
+        UPDATE cost_table r
+            INNER join (select price * Number_of_device g, Model from cost_table) t
+            on r.Model = t.Model
+        set r.total = t.g
+        where 1 = 1
+    </update>
+
+    <!--删除表-->
+    <delete id="delAll">
+        delete
+        from cost_table;
+    </delete>
+
+    <!--    根本不用query
+    select 语句 不要加分号
+    -->
+    <select id="selectByParams" parameterType="com.manager.mag.Query.CostQuery"
+            resultMap="BaseResultMap">
+        select * from cost_table
+    </select>
+
+</mapper>
